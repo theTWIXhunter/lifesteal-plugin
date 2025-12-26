@@ -1,0 +1,43 @@
+# LifeSteal Configuration
+
+# Worlds where lifesteal is enabled
+enabled-worlds:
+  - world
+  - world_nether
+  - world_the_end
+
+# Commands to run when a player reaches the elimination threshold (with operator permissions)
+# Use %player% placeholder for the player's name
+elimination-commands:
+  - "kick %player% You have been eliminated!"
+  - "broadcast %player% has been eliminated from the server!"
+  # - "ban %player% You ran out of hearts!"
+
+# Revive settings
+revive:
+  # Hearts to set when a player is revived using the command
+  hearts: 10.0
+  # Commands to run when a player is revived (with operator permissions)
+  # Use %player% placeholder for the player's name
+  commands:
+    - "broadcast %player% has been revived!"
+
+# Heart settings
+hearts:
+  # Amount of hearts gained/lost per kill (1 heart = 2 health points)
+  amount: 1.0
+  # Hearts at or below which a player gets eliminated (0.5 = 1 health point, Minecraft's minimum)
+  eliminate-at: 0.5
+  # Maximum hearts a player can have
+  maximum: 20.0
+
+# Heart crafting recipe
+crafting:
+  # Enable or disable heart crafting
+  enabled: true
+  # Recipe pattern (3x3 crafting grid)
+  # Use material names from https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
+  recipe:
+    row1: "DIAMOND,GOLD_INGOT,DIAMOND"
+    row2: "REDSTONE,NETHER_STAR,REDSTONE"
+    row3: "DIAMOND,EMERALD,DIAMOND"

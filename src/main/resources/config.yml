@@ -11,9 +11,11 @@ enabled-worlds:
 elimination-commands:
   - "kick %player% You have been eliminated!"
   - "broadcast %player% has been eliminated from the server!"
-  # - "ban %player% You ran out of hearts!"
+  - "ban %player% You ran out of hearts!"   # REMOVE IF YOU DON'T WANT PLAYERS TO BE BANNED UPON ELIMINATION
 
 # Revive settings
+# Commands to run when a player is revived by an operator
+# Users can revive other users by gifting them hearts.
 revive:
   # Hearts to set when a player is revived using the command
   hearts: 10.0
@@ -21,6 +23,7 @@ revive:
   # Use %player% placeholder for the player's name
   commands:
     - "broadcast %player% has been revived!"
+    - "pardon %player% You have been revived by an operator!" # REMOVE IF YOU DON'T WANT PLAYERS TO BE UNBANNED UPON REVIVAL
 
 # Heart settings
 hearts:

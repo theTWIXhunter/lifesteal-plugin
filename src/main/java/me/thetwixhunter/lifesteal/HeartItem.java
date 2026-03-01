@@ -69,6 +69,7 @@ public class HeartItem {
     }
 
     public boolean consumeHeart(Player player) {
+        MessageManager msg = plugin.getMessageManager();
         AttributeInstance maxHealth = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
         if (maxHealth == null) {
             return false;
@@ -78,7 +79,7 @@ public class HeartItem {
         double currentHearts = maxHealth.getBaseValue() / 2.0;
 
         if (currentHearts >= maxHearts) {
-            player.sendMessage(ChatColor.RED + "You already have the maximum amount of hearts!");
+            player.sendMessage(msg.getMessage("heart.max-reached"));
             return false;
         }
 
@@ -89,13 +90,14 @@ public class HeartItem {
         // Update stored data
         plugin.getHeartDataManager().setPlayerHearts(player.getUniqueId(), player.getName(), newMaxHealth / 2.0);
         
-        player.sendMessage(ChatColor.GREEN + "You consumed a heart! New max hearts: " + (newMaxHealth / 2.0));
+        player.sendMessage(msg.getMessage("heart.consumed", "hearts", String.valueOf(newMaxHealth / 2.0)));
         plugin.getLogger().info("[DEBUG] " + player.getName() + " consumed a heart: " + currentHearts + " -> " + (newMaxHealth / 2.0));
         
         return true;
     }
 
     public boolean withdrawHeart(Player player) {
+        MessageManager msg = plugin.getMessageManager();
         AttributeInstance maxHealth = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
         if (maxHealth == null) {
             return false;
@@ -106,7 +108,7 @@ public class HeartItem {
 
         // Check if player would go below elimination threshold
         if (currentHearts - 1.0 <= eliminateAt) {
-            player.sendMessage(ChatColor.RED + "You cannot withdraw hearts below " + (eliminateAt + 1.0) + " hearts!");
+            player.sendMessage(msg.getMessage("withdrawheart.cannot-withdraw", "amount", String.valueOf(eliminateAt + 1.0)));
             return false;
         }
 
@@ -121,7 +123,7 @@ public class HeartItem {
         ItemStack heartItem = createHeartItem();
         player.getInventory().addItem(heartItem);
         
-        player.sendMessage(ChatColor.GREEN + "You withdrew a heart! New max hearts: " + (newMaxHealth / 2.0));
+        player.sendMessage(msg.getMessage("withdrawheart.success", "hearts", String.valueOf(newMaxHealth / 2.0)));
         plugin.getLogger().info("[DEBUG] " + player.getName() + " withdrew a heart: " + currentHearts + " -> " + (newMaxHealth / 2.0));
         
         return true;

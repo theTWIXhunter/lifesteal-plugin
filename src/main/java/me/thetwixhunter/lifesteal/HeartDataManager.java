@@ -56,7 +56,8 @@ public class HeartDataManager {
     }
 
     public double getPlayerHearts(UUID uuid) {
-        return dataConfig.getDouble("players." + uuid.toString() + ".hearts", 20.0);
+        double defaultHearts = plugin.getConfig().getDouble("hearts.starting", 10.0);
+        return dataConfig.getDouble("players." + uuid.toString() + ".hearts", defaultHearts);
     }
 
     public String getPlayerName(UUID uuid) {

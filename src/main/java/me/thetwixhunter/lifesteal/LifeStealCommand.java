@@ -6,6 +6,9 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class LifeStealCommand implements CommandExecutor {
 
     private final LifeSteal plugin;
@@ -16,14 +19,16 @@ public class LifeStealCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        MessageManager msg = plugin.getMessageManager();
+        
         if (args.length == 0) {
-            sender.sendMessage(ChatColor.RED + "Usage: /lifestealplugin <reload|revive|withdrawheart|sethearts>");
+            sender.sendMessage(msg.getMessage("lifestealplugin.usage"));
             return true;
         }
 
         if (args[0].equalsIgnoreCase("reload")) {
             if (!sender.hasPermission("lifesteal.reload")) {
-                sender.sendMessage(ChatColor.RED + "You don't have permission to reload the plugin!");
+                sender.sendMessage(msg.getMessage("lifestealplugin.reload.no-permission"));
                 return true;
             }
 
@@ -55,21 +60,21 @@ public class LifeStealCommand implements CommandExecutor {
                 }
             }
             
-            sender.sendMessage(ChatColor.GREEN + "LifeSteal plugin has been reloaded!");
+            sender.sendMessage(msg.getMessage("lifestealplugin.reload.success"));
             if (playersReloaded > 0) {
-                sender.sendMessage(ChatColor.GREEN + "Reloaded hearts from file for " + playersReloaded + " player(s) in enabled worlds.");
+                sender.sendMessage(msg.getMessage("lifestealplugin.reload.players-reloaded", "amount", String.valueOf(playersReloaded)));
             }
             return true;
         }
 
         if (args[0].equalsIgnoreCase("revive")) {
             if (!sender.hasPermission("lifesteal.revive")) {
-                sender.sendMessage(ChatColor.RED + "You don't have permission to revive players!");
+                sender.sendMessage(msg.getMessage("lifestealplugin.revive.no-permission"));
                 return true;
             }
 
             if (args.length < 2) {
-                sender.sendMessage(ChatColor.RED + "Usage: /lifestealplugin revive <player>");
+                sender.sendMessage(msg.getMessage("lifestealplugin.revive.usage"));
                 return true;
             }
 
@@ -77,7 +82,7 @@ public class LifeStealCommand implements CommandExecutor {
             org.bukkit.entity.Player target = plugin.getServer().getPlayer(playerName);
 
             if (target == null || !target.isOnline()) {
-                sender.sendMessage(ChatColor.RED + "Player " + playerName + " is not online!");
+                sender.sendMessage(msg.getMessage("lifestealplugin.revive.player-not-online", "player", playerName));
                 return true;
             }
 
@@ -87,12 +92,12 @@ public class LifeStealCommand implements CommandExecutor {
 
         if (args[0].equalsIgnoreCase("withdrawheart")) {
             if (!(sender instanceof org.bukkit.entity.Player)) {
-                sender.sendMessage(ChatColor.RED + "Only players can use this command!");
+                sender.sendMessage(msg.getMessage("only-players"));
                 return true;
             }
 
             if (!sender.hasPermission("lifesteal.withdrawheart")) {
-                sender.sendMessage(ChatColor.RED + "You don't have permission to withdraw hearts!");
+                sender.sendMessage(msg.getMessage("lifestealplugin.withdrawheart.no-permission"));
                 return true;
             }
 
@@ -101,7 +106,7 @@ public class LifeStealCommand implements CommandExecutor {
             // Check if player is in an enabled world
             java.util.List<String> enabledWorlds = plugin.getConfig().getStringList("enabled-worlds");
             if (!enabledWorlds.contains(player.getWorld().getName())) {
-                sender.sendMessage(ChatColor.RED + "You can only withdraw hearts in lifesteal worlds!");
+                sender.sendMessage(msg.getMessage("withdrawheart.only-in-lifesteal-worlds"));
                 return true;
             }
 
@@ -115,12 +120,12 @@ public class LifeStealCommand implements CommandExecutor {
 
         if (args[0].equalsIgnoreCase("sethearts")) {
             if (!sender.hasPermission("lifesteal.sethearts")) {
-                sender.sendMessage(ChatColor.RED + "You don't have permission to set hearts!");
+                sender.sendMessage(msg.getMessage("lifestealplugin.sethearts.no-permission"));
                 return true;
             }
 
             if (args.length < 3) {
-                sender.sendMessage(ChatColor.RED + "Usage: /lifestealplugin sethearts <player> <amount>");
+                sender.sendMessage(msg.getMessage("lifestealplugin.sethearts.usage"));
                 return true;
             }
 
@@ -130,17 +135,17 @@ public class LifeStealCommand implements CommandExecutor {
             try {
                 amount = Double.parseDouble(args[2]);
                 if (amount <= 0) {
-                    sender.sendMessage(ChatColor.RED + "Amount must be positive!");
+                    sender.sendMessage(msg.getMessage("must-be-positive"));
                     return true;
                 }
                 
                 double maxHearts = plugin.getConfig().getDouble("hearts.maximum", 20.0);
                 if (amount > maxHearts) {
-                    sender.sendMessage(ChatColor.RED + "Amount cannot exceed maximum hearts (" + maxHearts + ")!");
+                    sender.sendMessage(msg.getMessage("lifestealplugin.sethearts.exceeds-maximum", "max", String.valueOf(maxHearts)));
                     return true;
                 }
             } catch (NumberFormatException e) {
-                sender.sendMessage(ChatColor.RED + "Invalid amount! Please enter a number.");
+                sender.sendMessage(msg.getMessage("invalid-number"));
                 return true;
             }
 
@@ -163,28 +168,38 @@ public class LifeStealCommand implements CommandExecutor {
                             target.setHealth(newMaxHealth);
                         }
                         
-                        sender.sendMessage(ChatColor.GREEN + "Set " + target.getName() + "'s hearts to " + amount + " (applied immediately)");
-                        target.sendMessage(ChatColor.GREEN + "Your max hearts have been set to " + amount + "!");
+                        Map<String, String> placeholders = new HashMap<>();
+                        placeholders.put("player", target.getName());
+                        placeholders.put("amount", String.valueOf(amount));
+                        sender.sendMessage(msg.getMessage("lifestealplugin.sethearts.success-immediate", placeholders));
+                        target.sendMessage(msg.getMessage("lifestealplugin.sethearts.target-immediate", "amount", String.valueOf(amount)));
                     }
                 } else {
-                    sender.sendMessage(ChatColor.GREEN + "Set " + target.getName() + "'s hearts to " + amount + " (will apply when they join an enabled world)");
-                    target.sendMessage(ChatColor.GREEN + "Your max hearts have been set to " + amount + " and will be applied when you join a lifesteal world!");
+                    Map<String, String> placeholders = new HashMap<>();
+                    placeholders.put("player", target.getName());
+                    placeholders.put("amount", String.valueOf(amount));
+                    sender.sendMessage(msg.getMessage("lifestealplugin.sethearts.success-on-join", placeholders));
+                    target.sendMessage(msg.getMessage("lifestealplugin.sethearts.target-on-join", "amount", String.valueOf(amount)));
                 }
             } else {
                 // Player is offline - update file only
                 org.bukkit.OfflinePlayer offlinePlayer = org.bukkit.Bukkit.getOfflinePlayer(playerName);
                 plugin.getHeartDataManager().setPlayerHearts(offlinePlayer.getUniqueId(), playerName, amount);
-                sender.sendMessage(ChatColor.GREEN + "Set " + playerName + "'s hearts to " + amount + " (offline - will apply when they join)");
+                Map<String, String> placeholders = new HashMap<>();
+                placeholders.put("player", playerName);
+                placeholders.put("amount", String.valueOf(amount));
+                sender.sendMessage(msg.getMessage("lifestealplugin.sethearts.success-offline", placeholders));
             }
             
             return true;
         }
 
-        sender.sendMessage(ChatColor.RED + "Unknown subcommand. Usage: /lifestealplugin <reload|revive|withdrawheart|sethearts>");
+        sender.sendMessage(msg.getMessage("lifestealplugin.unknown-subcommand"));
         return true;
     }
 
     private void revivePlayer(org.bukkit.entity.Player player, CommandSender sender) {
+        MessageManager msg = plugin.getMessageManager();
         double reviveHearts = plugin.getConfig().getDouble("revive.hearts", 10.0);
         double newMaxHealth = reviveHearts * 2.0; // Convert hearts to health points
 
@@ -196,7 +211,10 @@ public class LifeStealCommand implements CommandExecutor {
             // Store player's new hearts
             plugin.getHeartDataManager().setPlayerHearts(player.getUniqueId(), player.getName(), reviveHearts);
             
-            sender.sendMessage(ChatColor.GREEN + "Revived " + player.getName() + " with " + reviveHearts + " hearts!");
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("player", player.getName());
+            placeholders.put("hearts", String.valueOf(reviveHearts));
+            sender.sendMessage(msg.getMessage("lifestealplugin.revive.success", placeholders));
             plugin.getLogger().info("[DEBUG] Player revived: " + player.getName() + " - Set to " + reviveHearts + " hearts");
 
             // Execute revive commands

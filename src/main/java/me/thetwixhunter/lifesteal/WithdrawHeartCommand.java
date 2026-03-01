@@ -19,8 +19,10 @@ public class WithdrawHeartCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        MessageManager msg = plugin.getMessageManager();
+        
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command!");
+            sender.sendMessage(msg.getMessage("only-players"));
             return true;
         }
 
@@ -29,7 +31,7 @@ public class WithdrawHeartCommand implements CommandExecutor {
         // Check if player is in an enabled world
         List<String> enabledWorlds = plugin.getConfig().getStringList("enabled-worlds");
         if (!enabledWorlds.contains(player.getWorld().getName())) {
-            sender.sendMessage(ChatColor.RED + "You can only withdraw hearts in lifesteal worlds!");
+            sender.sendMessage(msg.getMessage("withdrawheart.only-in-lifesteal-worlds"));
             return true;
         }
 

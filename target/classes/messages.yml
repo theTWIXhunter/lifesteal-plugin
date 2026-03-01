@@ -1,0 +1,74 @@
+# +--------------------------------------------------------------------------+
+# |              ------====== Lifesteal MESSAGES ======------                |
+# |                       --- By TheTWIXhunter ---                           |
+# +--------------------------------------------------------------------------+
+# |                                                                          |
+# | Customize all plugin messages here.                                     |
+# | Use color codes with & symbol: &c = red, &a = green, &7 = gray, etc.    |
+# | Available placeholders:                                                  |
+# |   %player% - Player name                                                 |
+# |   %amount% - Amount of hearts                                            |
+# |   %hearts% - Hearts value                                                |
+# |   %max% - Maximum hearts                                                 |
+# +--------------------------------------------------------------------------+
+
+# General messages
+only-players: "&cOnly players can use this command!"
+no-permission: "&cYou don't have permission to use this command!"
+invalid-number: "&cInvalid amount! Please enter a number."
+must-be-positive: "&cAmount must be positive!"
+
+# Gift heart command messages
+giftheart:
+  usage: "&cUsage: /giftheart <player> <amount>"
+  only-in-lifesteal-worlds: "&cYou can only gift hearts in lifesteal worlds!"
+  not-enough-hearts: "&cYou don't have enough hearts! You need at least %amount% hearts to gift %gift% hearts."
+  revived-target: "&aYou have been revived by %player%! You received %hearts% hearts!"
+  revived-sender: "&aYou gifted %amount% hearts to %player% and revived them! They now have %hearts% hearts."
+  revived-target-world: "&aYou have been revived by %player%! You will have %hearts% hearts when you join a lifesteal world!"
+  revived-sender-world: "&aYou gifted %amount% hearts to %player% and revived them! They will have %hearts% hearts when they join a lifesteal world."
+  revived-offline: "&aYou gifted %amount% hearts to %player% and revived them! They will have %hearts% hearts when they join."
+  received: "&aYou received %amount% hearts from %player%! New max hearts: %hearts%"
+  sent: "&aYou gifted %amount% hearts to %player%!"
+  received-world: "&aYou received %amount% hearts from %player%! You will have %hearts% max hearts when you join a lifesteal world."
+  sent-offline: "&aYou gifted %amount% hearts to %player% (offline)! They will have %hearts% max hearts when they join."
+
+# Withdraw heart command messages
+withdrawheart:
+  only-in-lifesteal-worlds: "&cYou can only withdraw hearts in lifesteal worlds!"
+  cannot-withdraw: "&cYou cannot withdraw hearts below %amount% hearts!"
+  success: "&aYou withdrew a heart! New max hearts: %hearts%"
+
+# Heart item messages
+heart:
+  max-reached: "&cYou already have the maximum amount of hearts!"
+  consumed: "&aYou consumed a heart! New max hearts: %hearts%"
+
+# LifeSteal plugin command messages
+lifestealplugin:
+  usage: "&cUsage: /lifestealplugin <reload|revive|withdrawheart|sethearts>"
+  unknown-subcommand: "&cUnknown subcommand. Usage: /lifestealplugin <reload|revive|withdrawheart|sethearts>"
+  
+  reload:
+    no-permission: "&cYou don't have permission to reload the plugin!"
+    success: "&aLifeSteal plugin has been reloaded!"
+    players-reloaded: "&aReloaded hearts from file for %amount% player(s) in enabled worlds."
+  
+  revive:
+    no-permission: "&cYou don't have permission to revive players!"
+    usage: "&cUsage: /lifestealplugin revive <player>"
+    player-not-online: "&cPlayer %player% is not online!"
+    success: "&aRevived %player% with %hearts% hearts!"
+  
+  withdrawheart:
+    no-permission: "&cYou don't have permission to withdraw hearts!"
+  
+  sethearts:
+    no-permission: "&cYou don't have permission to set hearts!"
+    usage: "&cUsage: /lifestealplugin sethearts <player> <amount>"
+    exceeds-maximum: "&cAmount cannot exceed maximum hearts (%max%)!"
+    success-immediate: "&aSet %player%'s hearts to %amount% (applied immediately)"
+    success-on-join: "&aSet %player%'s hearts to %amount% (will apply when they join an enabled world)"
+    success-offline: "&aSet %player%'s hearts to %amount% (offline - will apply when they join)"
+    target-immediate: "&aYour max hearts have been set to %amount%!"
+    target-on-join: "&aYour max hearts have been set to %amount% and will be applied when you join a lifesteal world!"

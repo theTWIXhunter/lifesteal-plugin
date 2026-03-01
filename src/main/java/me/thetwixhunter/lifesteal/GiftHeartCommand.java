@@ -10,7 +10,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GiftHeartCommand implements CommandExecutor {
 
@@ -22,8 +24,10 @@ public class GiftHeartCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        MessageManager msg = plugin.getMessageManager();
+        
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command!");
+            sender.sendMessage(msg.getMessage("only-players"));
             return true;
         }
 
@@ -31,7 +35,7 @@ public class GiftHeartCommand implements CommandExecutor {
 
         // Check arguments
         if (args.length < 2) {
-            sender.sendMessage(ChatColor.RED + "Usage: /giftheart <player> <amount>");
+            sender.sendMessage(msg.getMessage("giftheart.usage"));
             return true;
         }
 
@@ -40,18 +44,18 @@ public class GiftHeartCommand implements CommandExecutor {
         try {
             amount = Double.parseDouble(args[1]);
             if (amount <= 0) {
-                sender.sendMessage(ChatColor.RED + "Amount must be positive!");
+                sender.sendMessage(msg.getMessage("must-be-positive"));
                 return true;
             }
         } catch (NumberFormatException e) {
-            sender.sendMessage(ChatColor.RED + "Invalid amount! Please enter a number.");
+            sender.sendMessage(msg.getMessage("invalid-number"));
             return true;
         }
 
         // Check if giver is in an enabled world
         List<String> enabledWorlds = plugin.getConfig().getStringList("enabled-worlds");
         if (!enabledWorlds.contains(giver.getWorld().getName())) {
-            sender.sendMessage(ChatColor.RED + "You can only gift hearts in lifesteal worlds!");
+            sender.sendMessage(msg.getMessage("giftheart.only-in-lifesteal-worlds"));
             return true;
         }
 
@@ -65,7 +69,10 @@ public class GiftHeartCommand implements CommandExecutor {
         double eliminateAt = plugin.getConfig().getDouble("hearts.eliminate-at", 0.5);
 
         if (giverHearts - amount <= eliminateAt) {
-            sender.sendMessage(ChatColor.RED + "You don't have enough hearts! You need at least " + (amount + eliminateAt) + " hearts to gift " + amount + " hearts.");
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("amount", String.valueOf(amount + eliminateAt));
+            placeholders.put("gift", String.valueOf(amount));
+            sender.sendMessage(msg.getMessage("giftheart.not-enough-hearts", placeholders));
             return true;
         }
 
@@ -109,8 +116,16 @@ public class GiftHeartCommand implements CommandExecutor {
                             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), reviveCmd);
                         }
                         
-                        target.sendMessage(ChatColor.GREEN + "You have been revived by " + giver.getName() + "! You received " + (newTargetMaxHealth / 2.0) + " hearts!");
-                        giver.sendMessage(ChatColor.GREEN + "You gifted " + amount + " hearts to " + target.getName() + " and revived them! They now have " + (newTargetMaxHealth / 2.0) + " hearts.");
+                        Map<String, String> placeholders = new HashMap<>();
+                        placeholders.put("player", giver.getName());
+                        placeholders.put("hearts", String.valueOf(newTargetMaxHealth / 2.0));
+                        target.sendMessage(msg.getMessage("giftheart.revived-target", placeholders));
+                        
+                        placeholders.clear();
+                        placeholders.put("amount", String.valueOf(amount));
+                        placeholders.put("player", target.getName());
+                        placeholders.put("hearts", String.valueOf(newTargetMaxHealth / 2.0));
+                        giver.sendMessage(msg.getMessage("giftheart.revived-sender", placeholders));
                         plugin.getLogger().info(giver.getName() + " gifted " + amount + " hearts to " + target.getName() + " and revived them");
                     } else {
                         // Normal gift - add hearts
@@ -118,8 +133,16 @@ public class GiftHeartCommand implements CommandExecutor {
                         targetMaxHealth.setBaseValue(newTargetMaxHealth);
                         plugin.getHeartDataManager().setPlayerHearts(target.getUniqueId(), target.getName(), newTargetMaxHealth / 2.0);
                         
-                        target.sendMessage(ChatColor.GREEN + "You received " + amount + " hearts from " + giver.getName() + "! New max hearts: " + (newTargetMaxHealth / 2.0));
-                        giver.sendMessage(ChatColor.GREEN + "You gifted " + amount + " hearts to " + target.getName() + "!");
+                        Map<String, String> placeholders = new HashMap<>();
+                        placeholders.put("amount", String.valueOf(amount));
+                        placeholders.put("player", giver.getName());
+                        placeholders.put("hearts", String.valueOf(newTargetMaxHealth / 2.0));
+                        target.sendMessage(msg.getMessage("giftheart.received", placeholders));
+                        
+                        placeholders.clear();
+                        placeholders.put("amount", String.valueOf(amount));
+                        placeholders.put("player", target.getName());
+                        giver.sendMessage(msg.getMessage("giftheart.sent", placeholders));
                         plugin.getLogger().info(giver.getName() + " gifted " + amount + " hearts to " + target.getName());
                     }
                 }
@@ -143,16 +166,32 @@ public class GiftHeartCommand implements CommandExecutor {
                         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), reviveCmd);
                     }
                     
-                    target.sendMessage(ChatColor.GREEN + "You have been revived by " + giver.getName() + "! You will have " + newTargetHearts + " hearts when you join a lifesteal world!");
-                    giver.sendMessage(ChatColor.GREEN + "You gifted " + amount + " hearts to " + target.getName() + " and revived them! They will have " + newTargetHearts + " hearts when they join a lifesteal world.");
+                    Map<String, String> placeholders = new HashMap<>();
+                    placeholders.put("player", giver.getName());
+                    placeholders.put("hearts", String.valueOf(newTargetHearts));
+                    target.sendMessage(msg.getMessage("giftheart.revived-target-world", placeholders));
+                    
+                    placeholders.clear();
+                    placeholders.put("amount", String.valueOf(amount));
+                    placeholders.put("player", target.getName());
+                    placeholders.put("hearts", String.valueOf(newTargetHearts));
+                    giver.sendMessage(msg.getMessage("giftheart.revived-sender-world", placeholders));
                     plugin.getLogger().info(giver.getName() + " gifted " + amount + " hearts to " + target.getName() + " (offline/out of world) and revived them");
                 } else {
                     // Normal gift
                     double newTargetHearts = Math.min(maxHearts, targetHearts + amount);
                     plugin.getHeartDataManager().setPlayerHearts(target.getUniqueId(), target.getName(), newTargetHearts);
                     
-                    target.sendMessage(ChatColor.GREEN + "You received " + amount + " hearts from " + giver.getName() + "! You will have " + newTargetHearts + " max hearts when you join a lifesteal world.");
-                    giver.sendMessage(ChatColor.GREEN + "You gifted " + amount + " hearts to " + target.getName() + "!");
+                    Map<String, String> placeholders = new HashMap<>();
+                    placeholders.put("amount", String.valueOf(amount));
+                    placeholders.put("player", giver.getName());
+                    placeholders.put("hearts", String.valueOf(newTargetHearts));
+                    target.sendMessage(msg.getMessage("giftheart.received-world", placeholders));
+                    
+                    placeholders.clear();
+                    placeholders.put("amount", String.valueOf(amount));
+                    placeholders.put("player", target.getName());
+                    giver.sendMessage(msg.getMessage("giftheart.sent", placeholders));
                     plugin.getLogger().info(giver.getName() + " gifted " + amount + " hearts to " + target.getName() + " (out of enabled world)");
                 }
             }
@@ -176,14 +215,22 @@ public class GiftHeartCommand implements CommandExecutor {
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), reviveCmd);
                 }
                 
-                giver.sendMessage(ChatColor.GREEN + "You gifted " + amount + " hearts to " + args[0] + " and revived them! They will have " + newTargetHearts + " hearts when they join.");
+                Map<String, String> placeholders = new HashMap<>();
+                placeholders.put("amount", String.valueOf(amount));
+                placeholders.put("player", args[0]);
+                placeholders.put("hearts", String.valueOf(newTargetHearts));
+                giver.sendMessage(msg.getMessage("giftheart.revived-offline", placeholders));
                 plugin.getLogger().info(giver.getName() + " gifted " + amount + " hearts to " + args[0] + " (offline) and revived them");
             } else {
                 // Normal gift
                 double newTargetHearts = Math.min(maxHearts, targetHearts + amount);
                 plugin.getHeartDataManager().setPlayerHearts(Bukkit.getOfflinePlayer(args[0]).getUniqueId(), args[0], newTargetHearts);
                 
-                giver.sendMessage(ChatColor.GREEN + "You gifted " + amount + " hearts to " + args[0] + " (offline)! They will have " + newTargetHearts + " max hearts when they join.");
+                Map<String, String> placeholders = new HashMap<>();
+                placeholders.put("amount", String.valueOf(amount));
+                placeholders.put("player", args[0]);
+                placeholders.put("hearts", String.valueOf(newTargetHearts));
+                giver.sendMessage(msg.getMessage("giftheart.sent-offline", placeholders));
                 plugin.getLogger().info(giver.getName() + " gifted " + amount + " hearts to " + args[0] + " (offline)");
             }
         }

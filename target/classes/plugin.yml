@@ -1,0 +1,41 @@
+name: LifeSteal
+version: '1.0.0'
+main: me.thetwixhunter.lifesteal.LifeSteal
+api-version: '1.21'
+author: me.thetwixhunter
+description: Lightweight lifesteal plugin for Paper
+softdepend: [PlaceholderAPI]
+
+commands:
+  lifestealplugin:
+    description: Main command for LifeSteal plugin
+    usage: /lifestealplugin <reload|revive|withdrawheart|sethearts>
+    permission: lifesteal.reload
+    permission-message: You don't have permission to use this command!
+  withdrawheart:
+    description: Withdraw a heart as an item
+    usage: /withdrawheart
+    permission: lifesteal.withdrawheart
+    permission-message: You don't have permission to withdraw hearts!
+  giftheart:
+    description: Gift hearts to another player
+    usage: /giftheart <player> <amount>
+    permission: lifesteal.giftheart
+    permission-message: You don't have permission to gift hearts!
+
+permissions:
+  lifesteal.reload:
+    description: Allows reloading the plugin configuration
+    default: op
+  lifesteal.revive:
+    description: Allows reviving players
+    default: op
+  lifesteal.withdrawheart:
+    description: Allows withdrawing hearts as items
+    default: true
+  lifesteal.giftheart:
+    description: Allows gifting hearts to other players
+    default: true
+  lifesteal.sethearts:
+    description: Allows setting hearts for players
+    default: op
